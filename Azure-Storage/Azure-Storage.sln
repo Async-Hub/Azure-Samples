@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blobs", "Blobs\Blobs.csproj", "{91ADA3A9-160D-4747-81FF-AEF5A72E6F0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tables", "Tables\Tables.csproj", "{C780A18A-8EC8-4C85-A8DD-9C568FDE5196}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91ADA3A9-160D-4747-81FF-AEF5A72E6F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91ADA3A9-160D-4747-81FF-AEF5A72E6F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91ADA3A9-160D-4747-81FF-AEF5A72E6F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91ADA3A9-160D-4747-81FF-AEF5A72E6F0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C780A18A-8EC8-4C85-A8DD-9C568FDE5196}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C780A18A-8EC8-4C85-A8DD-9C568FDE5196}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C780A18A-8EC8-4C85-A8DD-9C568FDE5196}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C780A18A-8EC8-4C85-A8DD-9C568FDE5196}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ABC25306-5135-4565-BCD9-5521DBF5E810}
+	EndGlobalSection
+EndGlobal
