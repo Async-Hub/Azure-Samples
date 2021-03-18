@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "LogicAciSample": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30064,
+      "useSSL": false
+    }
+  }
+}
