@@ -1,3 +1,18 @@
 ﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Profile Page";
+}
+<h1>Profile Page</h1>
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <span>Name: @User.Identity.Name</span>
+    <ul>
+        @foreach (var claim in User.Claims)
+        {
+            <li>
+                <span><b>Claim type:</b> @claim.Type</span>
+                <span><b>Claim value:</b> @claim.Value</span>
+            </li>
+        }
+    </ul>
 }
