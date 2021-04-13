@@ -1,0 +1,65 @@
+trigger:
+- master
+
+variables:
+- group: Default
+- name: agentNameSuffix
+  value: $[format('{0:yyyyMMddHHmmssf}', pipeline.startTime)]
+
+jobs:
+- job: Prepare_Infrastructure
+  displayName: Prepare Infrastructure
+  pool: server
+  steps:
+      # Invoke Azure Function
+    - task: AzureFunction@1
+      displayName: 'Create Build Agent'
+      inputs:
+        function: 'https://func-xxx.azurewebsites.net/api/CreateBuildAgentHttpTrigger'
+        key: 'aRU5a6vaB4qpJJOG3u/zgyKm83eoQOt0naIOhvzm80FWo1v/pk/vpw=='
+        method: 'POST'
+        body: '{"agentNameSuffix": "$(agentNameSuffix)", "agentPersonalAccessToken": "$(AgentPersonalAccessToken)",
+          "planUri": "$(System.CollectionUri)",
+          "projectId": "$(System.TeamProjectId)", "hubName": "$(System.HostType)",
+          "planId": "$(System.PlanId)", "jobId": "$(System.JobId)",
+          "taskId": "$(System.TaskInstanceId)", "authToken": "$(System.AccessToken)"}'
+        waitForCompletion: 'true'
+      timeoutInMinutes: 0
+- job: Build_Sources
+  displayName: Build Project Sources
+  dependsOn: Prepare_Infrastructure
+  pool: OnDemandBuildAgents
+  steps:
+    - task: UseDotNet@2
+      displayName: Use .NET 5
+      inputs:
+        packageType: 'sdk'
+        version: '5.0.x'
+    - task: DotNetCoreCLI@2
+      displayName: Restore NuGet Packages
+      inputs:
+        command: restore
+        projects: '**/*.csproj'
+        feedsToUse: 'select'
+        includeNuGetOrg: true
+    - task: DotNetCoreCLI@2
+      displayName: Build .NET Projects
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+- job: Remove_Infrastructure
+  displayName: Remove Infrastructure
+  dependsOn: Build_Sources
+  pool: server
+  steps:
+    # Invoke Azure Function
+  - task: AzureFunction@1
+    displayName: 'Remove Build Agent'
+    inputs:
+      function: 'https://func-xxx.azurewebsites.net/api/RemoveBuildAgentHttpTrigger'
+      key: '6ZF3Z0fRN0Z3jei0C/bs73POxPE6ztZaurnYVZEgj6jrjz910tQ4CA=='
+      method: 'POST'
+      body: '{"agentNameSuffix": "$(agentNameSuffix)"}'
+      waitForCompletion: 'false'
+    timeoutInMinutes: 0
