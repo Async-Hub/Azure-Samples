@@ -21,8 +21,7 @@ $queueItem["agentPersonalAccessToken"] = $Request.Body.agentPersonalAccessToken
 $queueItem["taskId"] = $Request.Body.taskId
 $queueItem["jobId"] = $Request.Body.jobId
 
-#$date = Get-Date -Format "yyyy-MM-dd-HH-mm-ss"
-$queueItem["containerName"] = "acg-oba-" + $Request.Body.agentNameSuffix
+$queueItem["containerName"] = $Request.Body.agentName
 
 Write-Host "planUri:" $queueItem["planUri"]
 Write-Host "projectId:" $queueItem["projectId"]

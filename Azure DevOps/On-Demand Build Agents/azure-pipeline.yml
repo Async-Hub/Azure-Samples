@@ -3,8 +3,8 @@ trigger:
 
 variables:
 - group: Default
-- name: agentNameSuffix
-  value: $[format('{0:yyyyMMddHHmmssf}', pipeline.startTime)]
+- name: agentName
+  value: 'acg-dsa-$(Build.BuildId)'
 
 jobs:
 - job: Prepare_Infrastructure
@@ -18,7 +18,7 @@ jobs:
         function: 'https://func-xxx.azurewebsites.net/api/CreateBuildAgentHttpTrigger'
         key: 'aRU5a6vaB4qpJJOG3u/zgyKm83eoQOt0naIOhvzm80FWo1v/pk/vpw=='
         method: 'POST'
-        body: '{"agentNameSuffix": "$(agentNameSuffix)", "agentPersonalAccessToken": "$(AgentPersonalAccessToken)",
+        body: '{"agentName": "$(agentName)", "agentPersonalAccessToken": "$(AgentPersonalAccessToken)",
           "planUri": "$(System.CollectionUri)",
           "projectId": "$(System.TeamProjectId)", "hubName": "$(System.HostType)",
           "planId": "$(System.PlanId)", "jobId": "$(System.JobId)",
@@ -28,7 +28,10 @@ jobs:
 - job: Build_Sources
   displayName: Build Project Sources
   dependsOn: Prepare_Infrastructure
-  pool: OnDemandBuildAgents
+  pool:
+    name: OnDemandBuildAgents
+    demands:
+    - agent.name -equals ${{variables.agentName}}
   steps:
     - task: UseDotNet@2
       displayName: Use .NET 5
@@ -60,6 +63,6 @@ jobs:
       function: 'https://func-xxx.azurewebsites.net/api/RemoveBuildAgentHttpTrigger'
       key: '6ZF3Z0fRN0Z3jei0C/bs73POxPE6ztZaurnYVZEgj6jrjz910tQ4CA=='
       method: 'POST'
-      body: '{"agentNameSuffix": "$(agentNameSuffix)"}'
+      body: '{"agentName": "$(agentName)"}'
       waitForCompletion: 'false'
     timeoutInMinutes: 0
