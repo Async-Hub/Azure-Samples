@@ -15,7 +15,7 @@ Write-Host "AuthorizationHeaderValue" $authorizationHeaderValue
 Write-Host "$$params" $params
 
 $environmentVariable = @{}
-$environmentVariable["AZP_URL"] = 'https://dev.azure.com/dom-daniel-samples' #$QueueItem["planUri"]
+$environmentVariable["AZP_URL"] = 'https://dev.azure.com/xxx-samples' #$QueueItem["planUri"]
 $environmentVariable["AZP_TOKEN"] = $queueItem["agentPersonalAccessToken"]
 $environmentVariable["AZP_POOL"] = 'OnDemandBuildAgents'
 $environmentVariable["AZP_AGENT_NAME"] = $queueItem["containerName"]
