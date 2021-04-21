@@ -6,12 +6,17 @@
 
 # Job 2
 # Step 2.1
-az group create --name "rg-on-demand-build-agents" --location northeurope
+az group create --name rg-on-demand-build-agents --location northeurope
 # Step 2.2
-az storage account create --name "stondemagents" --resource-group "rg-on-demand-build-agents" --location northeurope
+az storage account create --name stondemagents --resource-group rg-on-demand-build-agents --location northeurope
 # Step 2.3
-az functionapp create --name "func-on-demand-build-agents" --resource-group "rg-on-demand-build-agents" --storage-account "stondemagents" \
+az functionapp create --name func-on-demand-build-agents --resource-group rg-on-demand-build-agents --storage-account stondemagents    \
     --functions-version 3 --runtime powershell --runtime-version 7.0 --consumption-plan-location northeurope
+# FUNCTIONS_WORKER_PROCESS_COUNT = 4
+# PSWorkerInProcConcurrencyUpperBound = 4
 # Step 2.4
 # Add PowerShell modules to Azure functions
 # requirements.psd1
+# Step 2.5
+az acr create --resource-group rg-on-demand-build-agents \
+  --name acrondemagents --sku Basic --admin-enabled true

@@ -84,6 +84,11 @@ print_header "3. Configuring Azure Pipelines agent..."
 
 print_header "4. Running Azure Pipelines agent..."
 
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/azure-function?view=azure-devops#where-should-a-task-signal-completion-when-callback-is-chosen-as-the-completion-event
+curl -X POST "$AZP_AGENT_COMPLETION_SIGNAL_URL" -H "Authorization: ${AZP_AGENT_COMPLETION_SIGNAL_AUTH_HEADER}" \
+ -H "Content-Type: application/json" \
+ -d "$AZP_AGENT_COMPLETION_SIGNAL_REQ_BODY" -v
+
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
