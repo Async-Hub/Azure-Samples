@@ -1,0 +1,7 @@
+az extension list-available --output table
+az extension add --name aks-preview
+az group create --name rg-aks-sample --location westeurope
+az aks create --resource-group rg-aks-sample --name aks-sample-1  --location westeurope `
+    --node-count 1  --node-vm-size Standard_B2s --node-resource-group rg-aks-sample-node `
+    --enable-addons monitoring --generate-ssh-keys
+    
