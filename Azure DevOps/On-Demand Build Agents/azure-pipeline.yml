@@ -61,7 +61,7 @@ jobs:
     displayName: 'Remove Build Agent'
     inputs:
       function: 'https://func-xxx.azurewebsites.net/api/RemoveBuildAgentHttpTrigger'
-      key: '6ZF3Z0fRN0Z3jei0C/bs73POxPE6ztZaurnYVZEgj6jrjz910tQ4CA=='
+      key: 'cCrQuIEFZULYgYAJcKHuOorgHaxxxBUd5e9ZdCjSR87hiMjZSxLJLQ=='
       method: 'POST'
       body: '{"agentName": "$(agentName)"}'
       waitForCompletion: 'false'
