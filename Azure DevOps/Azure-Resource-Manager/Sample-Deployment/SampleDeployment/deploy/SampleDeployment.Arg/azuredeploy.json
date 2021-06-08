@@ -1,8 +1,171 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
-  "variables": {},
-  "resources": [],
-  "outputs": {}
+  "parameters": {
+    "nameSuffix": {
+      "type": "string",
+      // Use this value to make a new unique name for all resources in this template.
+      "defaultValue": "sd",
+      "metadata": {
+        "description": "Name of container group."
+      }
+    }
+  },
+  "variables": {
+    "containerRegistryName": "[concat('acrsampledeployment', parameters('nameSuffix'))]",
+    "containerGroupName": "[concat('acg-sample-deployment', parameters('nameSuffix'))]",
+    "storageAccountName": "[concat('stsampledeployment', parameters('nameSuffix'))]",
+    "applicationInsightsName": "[concat('appi-sample-deployment', parameters('nameSuffix'))]",
+    "webClientContainerName": "webapplication",
+    "apiContainerName": "functionapp",
+    "containerHostAddress": "[concat(variables('containerGroupName'), '.',resourceGroup().location,'.azurecontainer.io')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('storageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('applicationInsightsName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "DisableIpMasking": true,
+        "Flow_Type": "Redfield",
+        "Request_Source": "IbizaAIExtension",
+        "RetentionInDays": 90,
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "name": "[variables('containerRegistryName')]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-12-01-preview",
+      "location": "[resourceGroup().location]",
+      "comments": "Container registry for storing docker images",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": "true"
+      }
+    },
+    {
+      "name": "[variables('containerGroupName')]",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2019-12-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('microsoft.insights/components', variables('applicationInsightsName'))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('containerRegistryName'))]"
+      ],
+      "properties": {
+        "containers": [
+          {
+            "name": "[variables('webClientContainerName')]",
+            "properties": {
+              "image": "[concat(variables('containerRegistryName'),'.azurecr.io/',variables('webClientContainerName'),':latest')]",
+              "resources": {
+                "requests": {
+                  "cpu": 0.5,
+                  "memoryInGb": 2
+                }
+              },
+              "ports": [
+                {
+                  "port": 8081
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "ASPNETCORE_HTTPS_PORT",
+                  "value": "8081"
+                },
+                {
+                  "name": "API_SERVER_URL",
+                  "value": "[concat('http://',variables('containerHostAddress'),':','8082')]"
+                },
+                {
+                  "name": "APP_INSTRUMENTATION_KEY",
+                  "value": "[reference(concat('microsoft.insights/components/',variables('applicationInsightsName')), '2020-02-02-preview').InstrumentationKey]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "[variables('apiContainerName')]",
+            "properties": {
+              "image": "[concat(variables('containerRegistryName'),'.azurecr.io/',variables('apiContainerName'),':latest')]",
+              "resources": {
+                "requests": {
+                  "cpu": 0.5,
+                  "memoryInGb": 2
+                }
+              },
+              "ports": [
+                {
+                  "port": 8082
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "WEBSITE_HOSTNAME",
+                  "value": "[variables('containerHostAddress')]"
+                },
+                {
+                  "name": "AzureWebJobsStorage",
+                  "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId(resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-04-01').keys[0].value,';EndpointSuffix=core.windows.net')]"
+                },
+                {
+                  "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                  "value": "[reference(concat('microsoft.insights/components/', variables('applicationInsightsName')), '2020-02-02-preview').InstrumentationKey]"
+                }
+              ]
+            }
+          }
+        ],
+        "imageRegistryCredentials": [
+          {
+            "server": "[reference(variables('containerRegistryName'), '2019-12-01-preview', 'Full').properties.loginServer]",
+            "username": "[listCredentials(variables('containerRegistryName'), '2019-12-01-preview').username]",
+            "password": "[listCredentials(variables('containerRegistryName'), '2019-12-01-preview').passwords[0].value]"
+          }
+        ],
+        "osType": "Linux",
+        "ipAddress": {
+          "type": "Public",
+          "dnsNameLabel": "[variables('containerGroupName')]",
+          "ports": [
+            {
+              "protocol": "tcp",
+              "port": 8081
+            },
+            {
+              "protocol": "tcp",
+              "port": 8082
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "fullReferenceOutput": {
+      "type": "object",
+      "value": "[reference(variables('containerRegistryName'), '2019-12-01-preview', 'Full').properties]"
+    }
+  }
 }
+
