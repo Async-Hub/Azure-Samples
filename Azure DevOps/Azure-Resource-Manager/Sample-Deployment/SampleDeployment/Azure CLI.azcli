@@ -1,0 +1,10 @@
+# Chouse Azure subscription 
+az account set -s f8db0404-xxx
+
+az group create --name "rg-bicep-sample" --location westeurope
+az deployment group create --resource-group "rg-bicep-sample" `
+    --template-file sample.bicep --parameters  appiName=appi-bicep-sample
+
+az bicep decompile --file azuredeploy.json
+az deployment group create --resource-group "rg-sample-deployment" `
+    --template-file azuredeploym.bicep
