@@ -1,0 +1,5 @@
+az group create --location westeurope --name rg-vmss-appi-sample
+az deployment group create -f main.bicep -g rg-vmss-appi-sample `
+    --parameters vmssName=vmss-appi-sample instanceCount=2 adminUsername=U1 adminPassword=Passw@rd123456
+
+az sql db list-editions -l westeurope -o table
